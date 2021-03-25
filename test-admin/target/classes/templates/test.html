@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>第一个HTML页面</title>
+</head>
+<body>
+<h1>Hello Spring Boot!!!</h1>
+
+<p th:value="${user?.id}"></p>
+
+<li>List循环：
+    <table border="1">
+        <tr>
+            <th>用户名</th>
+            <th>邮箱</th>
+        </tr>
+        <tr  th:each="user,userStat : ${userList}">
+            <td th:text="${user.id}">one</td>
+            <td th:text="${user.id}">two</td>
+        </tr>
+    </table>
+</li>
+
+
+<li>数组循环：
+    <div th:each="user:${userList}">
+        <div th:text="${user.id}"></div>
+    </div>
+</li>
+
+
+<li>Map循环：
+    <div th:each="map:${maps}">
+        <div th:text="${map.key}"></div>
+        <div th:text="${map.value}"></div>
+    </div>
+</li>
+
+<li>Map1中value是对象：
+    <div th:each="map1:${map1}">
+        <div th:text="${map1.key}"></div>
+        <li>用户List循环：
+            <table border="1">
+                <tr>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                </tr>
+                <tr  th:each="user : ${map1}">
+                    <td th:text="${user.value.id}">one</td>
+                    <td th:text="${user.value.id}">two</td>
+                </tr>
+            </table>
+        </li>
+    </div>
+</li>
+
+<li>Map1中value是List：
+    <div th:each="map02:${map2}">
+        <div th:text="${map02.key}"></div>
+        <div th:text="${map02.value}"></div>
+
+       <!-- <li>用户List循环：
+            <table border="1">
+                <tr>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                </tr>
+                <tr  th:each="user:${map02.value}">
+                    <td th:text="${user.id}">one</td>
+                    <td th:text="${user.id}">two</td>
+                </tr>
+            </table>
+        </li>-->
+    </div>
+</li>
+
+<!--https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#what-is-thymeleaf  文档-->
+
+<input id="123" type="text" th:value="${hello}"></input>
+<input id="456" type="text" th:value="${user?.id}"></input>
+<label  th:class="${tclass}" th:style="${tstyle}" th:utext="${title}"></label>
+<p th:text="${tstyle}"></p>
+<p th:text="${title}"></p>
+<input type="text" name="userName" value="James Carrot" th:value="${title}" />
+</body>
+<script src="/static/js/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=didoTtfqbP1WTENCrGDpPIwe5QxXcVGH"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $.ajax({
+        url: "/wxUser/update",
+        type: "POST",
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        async: false,
+        success: function (data) {
+            if (data.code == 200) {
+                zp.toast("保存成功!");
+                //为了解决返回index页面数据不会重新选染问题,强制页面刷新
+                sessionStorage.setItem("need-refresh", true);
+                setTimeout(function () {
+                    window.location.href = "/wxUser/personalCenter";
+                },500)
+            } else {
+                zp.alert(data.msg);
+            }
+        }, error: function () {
+            zp.alert("更新异常失败!");
+        }
+    })
+
+
+    alert("123")
+    //尝试http是否有效
+    $.ajax({
+        url: "http://www.qq.com/",
+        type: 'GET',
+        dataType: "jsonp",
+        crossDomain:true,
+        statusCode:{
+            200:function(){
+                alert('200');
+                //说明请求的url不存在
+                if($.isFunction(fun)){
+                    fun(false);
+                }
+            },
+            307:function(){
+                alert('307');
+                //说明请求的url不存在
+                if($.isFunction(fun)){
+                    fun(false);
+                }
+            }
+        },
+        complete: function (data) {
+            console.log(data.status)
+            if (data.status == '200'){
+                alert('http有效1'+data);
+            } else {
+                alert('http无效'+data);
+            }
+        },
+        success: function(data) {
+            alert('http有效2');
+        },
+        error: function() {
+            alert("https://")
+            alert("无效的网址 请重新输入3");
+            return;
+        }
+    });
+    alert("456")
+    function fun() {
+        console.log("1");
+        setTimeout(function(){
+            console.log("2")
+        },1000)
+
+    }
+
+    for (var i = 0; i < 99; i++) {
+        fun()
+    }
+
+    //切换孩子 -> 按返回键时刷新页面
+    $('.clicxue').click(function () {
+        //<div class="xues clicxue ${(student.id)!""}" value="${(student.id)!""}"> </div>  $(this).attr('value')获取div中的学生id
+        window.location.replace("/course/index?id=" +$(this).attr('value')+"&agencyId="+$('#agencyId').val())
+    });
+
+    //把字符串中的所有/替换成空          把字符串中的所有,替换成空
+    var str = "str".replace(/\//g,''); var str1 = "str".replace(/,/g,'');
+
+    //判断真实类型
+    var undefined = typeof 'undefined'
+
+
+
+    /*]]>*/
+</script>
+</html>

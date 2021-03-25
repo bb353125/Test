@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keeko.second.dao.TestMapper">
+    <resultMap id="BaseResultMap" type="com.keeko.second.entity.SUser">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+    </resultMap>
+<!--
+    select (LENGTH(“1,2,3,44,55,66” )-LENGTH(REPLACE(“1,2,3,44,55,66” ,',','')) +1) ,
+    完整的字符串减去去除了逗号的字符串，得到逗号的个数再加1即是我们要求的数量
+-->
+
+    <!-- now() / current_timestamp                                           当前时间有时分秒 -->
+    <!-- current_time/current_data/curdate()/curtime()                       当前时间没有时分秒 -->
+    <!-- round((t.price * t.qty), 8) main, 截取8位小数                       sql截取 -->
+    <!-- select * from users where username is null or len(pwd)=0            查询空与null-->
+    <!-- update 表 set id=Null where id = ''                                 数据库恢复成null -->
+    <!-- SELECT DATEDIFF('2015-06-29','2015-06-12') AS DiffDate              查询两个日期差距天数 -->
+    <!-- not FIND_IN_SET(d.mac, #{macs})                                     排除macs(逗号分割)中不包含的mac -->
+    <!-- replace('a,b,,,,,c,d',',','') a,                                    字符串(,替换'') -->
+    <!-- length(replace('a,b,,,,,c,d',',','')) a,                            LENGTH返回字符串个数 -->
+    <!-- concat(province.name, city.name, district.name) provinceName,       多个字段拼接 -->
+    <!-- CONCAT_WS('/', count(0), GROUP_CONCAT(student_id SEPARATOR ',')) AS studentIds     统计拼接 -->
+    <!-- select 字段名 from 表名 order by convert(字段名 USING gbk) COLLATE gbk_chinese_ci asc     abc排序 -->
+
+
+
+    <!-- where to_days(now())-to_days(sp.begin_date) = 1                       查询昨天-->
+    <!-- where to_days(时间字段名) = to_days(now())                            查询今天-->
+    <!-- where DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(时间字段名)         查询7天-->
+    <!-- https://www.cnblogs.com/Luouy/p/7590812.html                          更多参考-->
+
+    <!-- update sys_order o set o.contract_id = (select id from sys_contract c where o.contract_no=c.code) 合同-->
+    <!--批量新增-->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">/*返回id*/
+        insert into dd_school(
+        id, name, region_id, school_type_id, status,
+        create_by, create_date, update_by, update_date, del_flag
+        )
+        values(
+        #{id}, #{name}, #{regionId}, #{schoolTypeId}, #{status},
+        #{createBy}, now(), #{updateBy}, #{updateDate}, #{delFlag}
+        )
+
+        insert into xuser(
+        version, phone, head_portrait, nickname, sex, area, province,open_id, create_by, create_date, update_date,
+        update_by, del_flag
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.version}, #{item.phone}, #{item.headPortrait}, #{item.nickname}, #{item.sex}, #{item.area},
+            #{item.province}, #{item.openId},
+            #{item.createBy}, #{item.createDate}, #{item.updateBy}, #{item.updateDate}, #{item.delFlag})
+        </foreach>
+    </insert>
+
+    <!--批量更新 -->
+    <update id="batchUpdate">
+        update sys_order_proceeds
+        <set>
+            <if test="invoiceNo != null and invoiceNo != ''">
+                invoice_no = #{invoiceNo},
+            </if>
+            <if test="updateDate != null">
+                update_date = #{updateDate},
+            </if>
+        </set>
+        where id in
+        <foreach item="id" collection="idList" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from xuser where id in
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchRemove">
+        DELETE
+        FROM sys_family_audio
+        WHERE LOCATE (id, CONCAT(#{ids})) > 0
+    </delete>
+
+    <!--批量查询1:-->
+    <select id="selectByIds" resultType="com.keeko.second.entity.SUser">
+        select id, version version, phone phone
+        from xuser
+        where del_flag = '0'
+        and id in(
+        <foreach item="ids" index="index" collection="list" separator=",">
+            #{ids}
+        </foreach>
+        )
+
+        <!-- 传StringList-->
+        AND LOCATE (tr.id, CONCAT
+        <foreach item="ids" collection="teacherRoleIds" open="("  separator="," close=")">
+            #{ids}
+        </foreach>
+        ) > 0
+        <!-- 传StringList字符串同等同上-->
+        AND LOCATE (tr.id, #{teacherRoleIds}) > 0
+        select * from sys_order_proceeds where del_flag = '0'
+        and LOCATE(id, "OP_200224CDMYXHDMNC,OP_200224CTHAN0F8ZC")
+
+        <!-- 传StringList 拼接or条件-->
+        AND (
+        <foreach item="ids" index="index" collection="list" separator="or">
+            na.news_special_ids LIKE CONCAT('%' , #{ids}, '%')
+        </foreach>
+        )
+    </select>
+    <!--批量查询2:-->
+    <select id="selectListByIds" resultType="com.keeko.second.entity.SUser">
+        select id, version version, phone phone
+        from xuser
+        where del_flag = '0'
+        and id in(
+        <foreach item="item" index="index" collection="list" separator=",">
+            #{item.id}
+        </foreach>
+        )
+    </select>
+
+    <!--列表查询 关联统计-->
+    <select id="exportFile" resultType="com.keeko.second.entity.SUser">
+        SELECT
+        <!--去重-->
+        DISTINCT(id)
+        lr.start_time startTime,
+        DATE_FORMAT(lr.start_time, '%Y-%m-%d %H:%i:%s') AS beginTime,
+        DATE_FORMAT(lr.end_time, '%Y-%m-%d %H:%i:%s') AS endTime,
+        <!--保留两位小数-->
+        IFNULL(ROUND(consume.actualMoney, 2), 0) totalConsumeMoney,
+        CASE
+        WHEN lr.publish_status = '0' THEN '未发布'
+        WHEN lr.publish_status = '1' THEN '已发布'
+        ELSE '' END AS `publishStatusName`,
+        IFNULL(DATE_FORMAT(lr.publish_date, '%Y-%m-%d %H:%i:%s'), '') AS publishTime,
+        IFNULL(w.workNum, 0) workNum,
+        FROM sys_lecture_record lr
+        LEFT JOIN sys_dict device_type ON device_type.`value` = sys_device.type AND device_type.type = 'device_type'
+        LEFT JOIN (SELECT lesson_id lessonId, count(0) AS workNum FROM sys_work GROUP BY lessonId) AS w ON w.lessonId=lr.lesson_id
+        <where>
+            <!-- like优化 表字段是多个使用FIND_IN_SET 单个使用LOCATE-->
+            WHERE FIND_IN_SET(#{id}, na.news_label_ids)
+            <!-- 特殊排序 -->
+            ORDER BY (CASE WHEN cc.sort = 0 THEN 0 ELSE 1 END) ASC, cc.sort DESC, cc.create_date DESC
+            <if test="isBind != null and isBind !='' and isBind == 0">
+                AND (bindAgency.remarks IS NULL OR bindAgency.remarks = '')
+            </if>
+            <if test="isBind != null and isBind !='' and isBind == 1">
+                AND bindAgency.remarks IS NOT NULL
+            </if>
+            <if test="label != null  and label !=''">
+                <choose>
+                    <!--  这里必须是两个= 一个等于没有效果 -->
+                    <when test="label == 'lt'">
+                        AND lr.cost_time &lt; #{value}
+                    </when>
+                    <!-- 这里传的若是单个数字会自动转int类型 所以需要用双引号  -->
+                    <when test='label == "1"'>
+                        AND lr.cost_time &lt;= #{value}
+                    </when>
+                    <when test="label == 'eq'">
+                        AND lr.cost_time = #{value}
+                    </when>
+                    <when test="label == 'gt'">
+                        AND lr.cost_time &gt; #{value}
+                    </when>
+                    <when test="label == 'ge'">
+                        AND lr.cost_time &gt;= #{value}
+                    </when>
+                    <otherwise>
+                        AND lr.cost_time &gt;= #{durationBeginDate}
+                        AND lr.cost_time &lt;= #{durationEndDate}
+                    </otherwise>
+                </choose>
+            </if>
+    <if test="publishStatus != null and publishStatus !=''">
+        AND lr.publish_status = #{publishStatus}
+    </if>
+    <!-- 开始时间从 -->
+            <if test="startTime != null and startTime !=''">
+                AND lr.start_time &gt;= date_format(#{beginTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <!-- 结束时间到 -->
+            <if test="endTime != null and endTime !=''">
+                AND lr.start_time &lt;= date_format(#{endTime},'%Y-%m-%d 23:59:59')
+            </if>
+            <if test="schoolName != null and schoolName !=''">
+                AND lr.school_name LIKE CONCAT('%' ,#{schoolName}, '%')
+            </if>
+            <if test="mac != null and mac !=''">
+                AND (lr.zk_mac LIKE CONCAT('%' ,#{mac}, '%') or lr.bind_devices LIKE CONCAT('%' ,#{mac}, '%'))
+            </if>
+        </where>
+        <!-- 排序 -->
+        <choose>
+            <when test="orderByClause != null and orderByClause != ''">
+                ORDER BY ${orderByClause}
+            </when>
+            <otherwise>
+                ORDER BY lr.start_time DESC
+            </otherwise>
+        </choose>
+
+        <choose>
+            <when test='timeStatus == "0"'>
+                AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= na.update_date
+            </when>
+            <otherwise>
+                AND DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= na.update_date
+            </otherwise>
+        </choose>
+
+        <!-- 取随机 1 -->
+        select * from parents_read
+        where sort >= (
+        select FLOOR(MAX(sort) * RAND()) from parents_read
+        ) order by sort limit 2
+        <!-- 取随机 2 -->
+        select * from (
+        select *, ROUND(count(0)*RAND()*100) as newSort from parents_read group by sort
+        ) as t order by t.newSort limit 20
+
+        <!-- 取随机 3 -->
+        WHERE category_id = #{categoryId}
+        ORDER BY RAND()
+        LIMIT 6
+
+        <!-- EXISTS 2 -->
+        select * from  sys_agency_code t where t.del_flag='0' and t.is_enabled='1'
+        and EXISTS (select a.id
+        from sys_agency a where a.del_flag='0' and t.agency_id=a.id
+        and a.type='2')
+
+        AND NOT EXISTS(select 1 from disinfect b where b.order_no=d.order_no and b.create_date > d.create_date)
+
+        <!-- 优化in -->
+        SELECT *
+        FROM sys_student s
+        where LOCATE (s.id, CONCAT('S_190811HK41NDS5AW','S_190822BHB3M8SH4H')) > 0
+        where s.id in ('S_190811HK41NDS5AW','S_190822BHB3M8SH4H')
+
+        <!-- 查询订单在2008年里，总金额少于2000的客户 -->
+        select tmp.customer
+        from (select customer, SUM(order_price) amount
+        from order1 where order_year = "2008" Group by customer) tmp
+        where tmp.amount > 2000
+        <!--  SELECT customer FROM order1 WHERE order_year = "2008" GROUP BY customer
+        HAVING SUM(order_price) < 2000  -->
+
+         <!-- DATE_SUB -7  DATE_ADD +7 -->
+       sys_class_authorization.expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND  DATE_ADD(CURDATE(),INTERVAL 7 DAY)
+
+        <!-- D关联排除 -->
+        AND NOT EXISTS (SELECT 1 FROM sys_enrollment_allowance AS ea WHERE ea.class_id = ca.id)
+
+        <!-- 上一条 下一条 -->
+        (select * from table_a where id = (select max(id) from table_a where id &lt; {$id});
+         select * from table_a where id = (select min(id) from table_a where id &gt; {$id});)
+
+        <!-- where 后加 CASE  WHEN  -->
+        select *
+        from A, B
+        where
+        CASE
+        when A.id = 0 then B.name in ('aaa', 'bbb')
+        when A.id = 1 then B.name in ('bbb', 'ccc')
+        when A.id = 2 then B.name in ('ccc', 'ddd')
+        END
+
+        <!-- 两种方式查询距离多少米  -->
+        SELECT a.id id, s.name shopName, s.lng lng, s.lat lat,
+        ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                            '24.581421'#{lat} * PI() / 180 - s.lat * PI() / 180
+                            ) / 2
+                        ),
+                            2
+                    ) + COS( '24.581421' #{lat} * PI() / 180) * COS(s.lat * PI() / 180) * POW(
+                            SIN(
+                            (
+                            '118.058929' #{lng} * PI() / 180 - s.lng * PI() / 180
+                            ) / 2
+                            ),
+                            2
+                            )
+                )
+            )
+        ) AS juli,
+        ROUND(st_distance(point(s.lng,s.lat),point(116.3424590000,40.0497810000))*111195/1000 ) as juli2
+        FROM shop_activity a
+        left join shop s on a.shop_id = s.id
+        WHERE a.deleted = 0
+        AND a.shop_id = 1351000662480420865
+        ORDER BY juli ASC
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--根据版本号进行新增-->
+    <insert id="insert">
+        INSERT INTO xuser(
+          version, phone, head_portrait, nickname, sex, area, province,open_id, create_by, create_date, update_date, update_by, del_flag
+        )
+        SELECT #{version}+1, #{phone}, #{headPortrait}, #{nickname}, #{sex}, #{area}, #{province}, #{openId}, #{createBy},
+        #{createDate}, #{updateDate}, #{updateBy}, #{delFlag}
+        FROM xuser
+        WHERE version = #{version}
+    </insert>
+
+    <insert id="insertY">
+        insert into yuser(
+        xid, phone, head_portrait, nickname, sex, area, province,open_id, create_by, create_date, update_date, update_by, del_flag
+        )
+        values (
+        #{xid}, #{phone}, #{headPortrait}, #{nickname}, #{sex}, #{area}, #{province}, #{openId}, #{createBy}, #{createDate}, #{updateDate}, #{updateBy}, #{delFlag}
+        )
+    </insert>
+
+    <insert id="insert1">
+        INSERT INTO xuser(
+            version, version2, phone, head_portrait, nickname, sex, area, province,open_id, create_by, create_date, update_date, update_by, del_flag
+        )
+        values (
+            #{version}, #{version2}, #{phone}, #{headPortrait}, #{nickname}, #{sex}, #{area}, #{province}, #{openId}, #{createBy},
+        #{createDate}, #{updateDate}, #{updateBy}, #{delFlag}
+        )
+    </insert>
+
+
+    <update id="updateById">
+        update xuser u
+        <set>
+            <if test="area != null and area != '' ">
+                u.area = #{area},
+            </if>
+            <if test="phone != null and phone != '' ">
+                u.phone = #{phone},
+            </if>
+            <if test="updateDate != null">
+                u.update_date = #{updateDate},
+            </if>
+        </set>
+        where u.id = #{id}
+    </update>
+
+    <select id="selectByOpenId" resultType="com.keeko.second.entity.SUser">
+        select id, nickname nickname, open_id openId, phone phone, area area
+        from xuser
+        where del_flag = '0'
+        and open_id = #{openId}
+    </select>
+
+    <select id="sUserList" resultType="com.keeko.second.entity.SUser">
+        select id, nickname nickname, open_id openId, phone phone, area area
+        from xuser
+        where del_flag = '0'
+        and id &gt;= #{id}
+    </select>
+
+    <select id="selectMaxVersion" resultType="com.keeko.second.entity.SUser">
+        select id, max(version) version
+        from xuser
+    </select>
+
+    <select id="selectByVersion" resultType="com.keeko.second.entity.SUser">
+        select id
+        from xuser
+        where version = #{version}
+    </select>
+
+    <select id="selectById" resultType="com.keeko.second.entity.SUser">
+        select
+        id `id`,
+        wechat_name wechatName,
+        login_name loginName,
+        password password,
+        open_id openId,
+        head_portrait headPortrait
+        from `user`
+        where id = #{id}
+    </select>
+
+
+</mapper>

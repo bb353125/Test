@@ -1,0 +1,27 @@
+###################  共同配置  ###################
+spring:
+    http:
+        converters:
+            preferred-json-mapper: fastjson
+    profiles:
+        active: test
+    # 模板引擎
+    thymeleaf:
+        prefix: classpath:/templates/
+    # 资源信息
+    messages:
+        # 国际化资源文件路径
+        basename: i18n/messages
+    jackson:
+        # Asia/Shanghai
+        time-zone: GMT+8
+        date-format: yyyy-MM-dd HH:mm:ss
+    mvc:
+        static-path-pattern: /static/**
+    resources:
+        static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/,classpath:/static/,file:/,file:/static
+    servlet:
+        multipart:
+            max-file-size: 10MB # 单个文件上传的大小
+            max-request-size: 200MB # 总上传数据大小
+

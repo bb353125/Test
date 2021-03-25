@@ -1,0 +1,99 @@
+###################  共同配置  ###################
+spring:
+    http:
+        converters:
+            preferred-json-mapper: fastjson
+    profiles:
+        active: test
+    # 模板引擎
+    thymeleaf:
+        prefix: classpath:/templates/
+    # 资源信息
+    messages:
+        # 国际化资源文件路径
+        basename: i18n/messages
+    jackson:
+        # Asia/Shanghai
+        time-zone: GMT+8
+        date-format: yyyy-MM-dd HH:mm:ss
+    mvc:
+        static-path-pattern: /static/**
+        async:
+            request-timeout: 60000ms
+    resources:
+        static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/,classpath:/static/,file:/,file:/static
+    servlet:
+        multipart:
+            max-file-size: 10MB # 单个文件上传的大小
+            max-request-size: 200MB # 总上传数据大小
+
+# 使用当个数据库时配置
+# mybatis:
+    # mybatis的mapper.xml配置文件路径
+    # mapperLocations: classpath:mapper/admin/*.xml
+    # mybatis设置domain的别名
+    # typeAliasesPackage: com.keeko.book.entity
+
+# 日志
+logging:
+    level.root: info
+    path: logs/
+    file: admin.log
+
+# shiro session的过期时间
+shiro:
+    session:
+        redis:
+            expire: 3600
+
+# OSS
+oss:
+    file:
+        endpoint: 123
+        keyid: 123
+        keysecret: 123
+
+# baiduTTS
+bdtts:
+    file:
+        app_key: 123
+        secret_key: 123
+        url: 123
+        cuid: 23
+
+
+# PageHelper分页
+pagehelper:
+    # 该参数默认为false 设置为true时，使用RowBounds分页会进行count查询
+    offsetAsPageNum: true
+    # 设置为true时，如果pageSize=0或者RowBounds.limit = 0就会查询出全部的结果
+    rowBoundsWithCount: true
+    # 3.5.0版本可用 - 为了支持startPage(Object params)方法   增加了一个`params`参数来配置参数映射，用于从Map或ServletRequest中取值
+    reasonable: true
+    returnPageInfo: true
+    params: count=countSql
+
+#feign调用默认是1000毫秒=1秒   应该设置成更长时间1000 * 60 * 5  = 5分钟  add by six-vision
+hystrix:
+    command:
+        default:
+            execution:
+                isolation:
+                   thread:
+                      timeoutInMilliseconds: 300000
+            circuitBreaker:
+                sleepWindowInMilliseconds: 300000
+                forceClosed: true
+
+# 上传时超时时间
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+
+# ribbon:
+    # httpclient:
+        # enabled: true
+    # MaxConnectionsPerHost: 500
+    # MaxTotalConnections: 2000
+    # ConnectTimeout: 60000
+    # ReadTimeout: 60000

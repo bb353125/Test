@@ -1,0 +1,59 @@
+# 微信参数配置
+wechat.url=http://sanhao.keeko.ai
+wechat.token=keeko
+wechat.appId=wx5d162a747b9f8b15
+wechat.appSecret=d072c3a7b48707aac2169414479a39cd
+wechat.remote-path=http://v.keeko.ai
+
+
+# 端口
+#server.port=8181
+# ==================== 数据库配置 ====================
+## master 数据源配置
+master.datasource.url=jdbc:mysql://193.112.130.53:3306/wechat?useUnicode=true&characterEncoding=utf-8&useSSL=false
+# MySQL驱动
+master.datasource.driverClassName=com.mysql.jdbc.Driver
+# 数据库账号
+master.datasource.username=root
+# 数据库密码
+# spring.datasource.password=yajie.1010
+master.datasource.password=Hidl8991*9102#@9
+# 阿里巴巴Druid连接池
+master.datasource.type=com.alibaba.druid.pool.DruidDataSource
+
+
+## cluster 数据源配置
+second.datasource.url=jdbc:mysql://10.105.43.6:3308/imovie?useUnicode=true&characterEncoding=utf-8&useSSL=false
+# MySQL驱动
+second.datasource.driverClassName=com.mysql.jdbc.Driver
+# 数据库账号
+second.datasource.username=root
+# 数据库密码
+# spring.datasource.password=yajie.1010
+second.datasource.password=7ec28031625a0250d85ee6bf18c6c7cc
+# 阿里巴巴Druid连接池
+second.datasource.type=com.alibaba.druid.pool.DruidDataSource
+
+
+# mybatis pagehelper 分页插件配置
+pagehelper.helperDialect=mysql
+pagehelper.reasonable=true
+pagehelper.supportMethodsArguments=true
+pagehelper.params=count\=countSql
+#配置freemarker数字格式化不再添加 , 号 页面传来的
+
+#shiro session的过期时间
+shiro.session.redis.expire=3600
+
+#springboot上传图片限制
+spring.http.multipart.maxFileSize=10Mb
+spring.http.multipart.maxRequestSize=10Mb
+
+#服务启动端口号
+# server.port=8081
+
+# Spring MVC视图前缀。
+# spring.mvc.view.prefix=/WEB-INF/view/
+spring.mvc.static-path-pattern=/**
+
+spring.resources.static-locations=classpath:/META-INF/resources/,classpath:/resources/,classpath:/,classpath:/static/,file:/,file:/static

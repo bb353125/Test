@@ -1,0 +1,44 @@
+server:
+    port: 8182
+
+spring:
+    datasource:
+        # 数据库连接地址
+        url: jdbc:mysql://10.105.112.219:3308/book_disinfection?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&useLegacyDatetimeCode=false
+        # MySQL驱动
+        driverClassName: com.mysql.jdbc.Driver
+        # 数据库账号
+        username: root
+        # 数据库密码
+        password: 7ec28031625a0250d85ee6bf18c6c7cc
+        # druid连接池
+        type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis:
+    # mybatis的mapper.xml配置文件路径
+    mapperLocations: classpath:mapper/*.xml
+    # mybatis设置domain的别名
+    typeAliasesPackage: com.keeko.book.entity
+
+book-admin:
+    #本项目url
+    basePath: http://xdg.keeko.ai
+    #推送服务器url
+    pushPath: http://apptest.ikeeko.com/pushbymac
+    #微信项目url
+    wechatBasePath: https://xcx.keeko.ai
+
+logging:
+  level.root: warn
+  path: logs/
+  file: admin.log
+
+eureka:
+    instance:
+         hostname: 118.25.130.236:10086
+         ip-address: 118.25.130.236
+         prefer-ip-address: true
+    client:
+         service-url:
+              defaultZone: http://${eureka.instance.hostname}/eureka/
+         registry-fetch-interval-seconds: 5

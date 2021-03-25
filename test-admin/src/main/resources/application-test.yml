@@ -1,0 +1,43 @@
+server:
+    port: 8082
+
+master:
+    datasource:
+        # 数据库连接地址
+        url: jdbc:mysql://localhost:3306/sys?allowMultiQueries=true&serverTimezone=UTC
+        # MySQL驱动
+        driverClassName: com.mysql.cj.jdbc.Driver
+        # 数据库账号
+        username: root
+        # 数据库密码
+        password: 123456
+        # druid连接池
+        type: com.alibaba.druid.pool.DruidDataSource
+
+second:
+    datasource:
+        # 数据库连接地址
+        url: jdbc:mysql://localhost:3306/keeko?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        # MySQL驱动
+        driverClassName: com.mysql.jdbc.Driver
+        # 数据库账号
+        username: root
+        # 数据库密码
+        password: 123456
+        # druid连接池
+        type: com.alibaba.druid.pool.DruidDataSource
+
+book-admin:
+    #本项目url
+    basePath: http://5f6z3k.natappfree.cc
+    #推送服务器url
+    pushPath: http://apptest.ikeeko.com/pushbymac
+    #微信项目url
+    wechatBasePath: https://xcx.keeko.ai
+
+wechat:
+    url: http://f4zdv9.natappfree.cc
+    token: keeko
+    appId: wx24d5adf7c43af7e9
+    appSecret: 6f428f071208519097f8e5ddfaf27db7
+    remote-path: http://yuyan_dev.v.keeko.ai
